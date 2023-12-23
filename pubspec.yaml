@@ -1,0 +1,35 @@
+name: kenji
+description: Anime application.
+
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
+
+version: 0.1.0+1
+
+environment:
+  sdk: ">=3.0.5 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.2
+  flutter_meedu_videoplayer: ^4.2.14
+  build_runner: ^2.4.6
+  path_provider:
+  hive_generator:
+  hive_flutter: ^1.1.0
+  dio: ^5.3.3
+  shared_preferences: ^2.2.2
+  crypto: ^3.0.3
+  google_fonts: ^6.1.0
+  carousel_slider: ^4.2.1
+  lottie: ^2.6.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true
