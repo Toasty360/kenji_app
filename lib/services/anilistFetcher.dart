@@ -1,15 +1,14 @@
 import 'package:dio/dio.dart';
-import 'package:kenji/Settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../Model/anime.dart';
 
 class AniList {
-  static String base_url = settings.baseURL;
+  static String base_url = "https://toasty-api.vercel.app/";
 
   static updateurl(String url) {
     base_url = url;
-    print("at update url ${base_url}");
+    print("at update url $base_url");
   }
 
   static Future<AnimeModel> fetchInfo(id, {provider = "", dub = false}) async {

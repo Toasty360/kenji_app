@@ -11,27 +11,30 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  media_kit:
-  media_kit_video:
-  media_kit_libs_video:
+  media_kit: ^1.1.10
+  media_kit_video: ^1.2.4
+  media_kit_libs_video: ^1.0.4
 
   cupertino_icons: ^1.0.2
   build_runner: ^2.4.6
   path_provider:
-  hive_generator:
-  hive_flutter: ^1.1.0
+
   dio: ^5.3.3
   shared_preferences: ^2.2.2
-  crypto: ^3.0.3
   google_fonts: ^6.1.0
   carousel_slider: ^4.2.1
-  lottie: ^2.6.0
+  lottie: ^3.0.0
+  toast: ^0.3.0
+  isar: ^3.1.0+1
+  isar_flutter_libs: ^3.1.0+1
+  isar_generator:
 
 dev_dependencies:
+  analyzer:
   flutter_test:
     sdk: flutter
 
-  flutter_lints: ^2.0.0
+  flutter_lints: ^3.0.1
 
 flutter:
   uses-material-design: true

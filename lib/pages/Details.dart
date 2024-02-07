@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -5,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:kenji/Model/anime.dart';
 import 'package:kenji/services/anilistFetcher.dart';
+import 'package:toast/toast.dart';
 
 import '../components/MediaPlayer.dart';
 import '../components/SaveIt.dart';
@@ -33,51 +36,26 @@ class _DetailsState extends State<Details> {
 
   List<EpisodeModel> showEps = [];
 
-  // hasData() async {
-  //   saved = isSaved(data.aniId);
-  //   if (data.status.toLowerCase() == "completed") {
-  //     if (tempAniDetails.containsKey(data.aniId)) {
-  //       data = tempAniDetails[data.aniId]!;
-  //     } else if (!saved) {
-  //       print("not saved so we should fetch the data");
-  //       fetchData(dubOrSub);
-  //     } else {
-  //       data = getData(data.aniId);
-  //       print("data from the watchList-- Hive\t ${data.episodes.length}");
-  //     }
-  //   } else if (data.status.toLowerCase().contains("not")) {
-  //     print("No need to fetch the data ig");
-  //   } else {
-  //     print("anime not completed so we should fetch the Latest data");
-  //     fetchData(dubOrSub);
-  //   }
-  //   episodeData = data.episodes.reversed.toList().cast<EpisodeModel>();
-  //   showEps =
-  //       episodeData.length > 15 ? episodeData.sublist(0, 15) : episodeData;
-  //   print(showEps.length);
-  //   print(episodeData.length);
-  //   if (episodeData.isNotEmpty && data.type.toLowerCase() != "movie") {
-  //     hasNoImage = episodeData[0].image == episodeData[1].image ? true : false;
-  //   }
-  //   isLoaded = true;
-  //   setState(() {});
-  // }
-
   fetchData(bool isDub) {
     AniList.fetchInfo(data.aniId, provider: "gogoanime", dub: isDub)
         .then((value) {
       data = value;
-      print(data.episodes.length);
-      episodeData = value.episodes;
-      isLoaded = true;
-      splitData(value);
-      setState(() {});
+      if (value.episodes.isEmpty) {
+        Toast.show("Not ${isDub ? "dub" : "sub"} not available!");
+      } else {
+        Toast.show("Loaded");
+        episodeData = value.episodes;
+        isLoaded = true;
+        splitData(value);
+        setState(() {});
+      }
     });
   }
 
   @override
   void initState() {
     super.initState();
+
     data = widget.item;
     if (tempAniDetails.containsKey(data.aniId)) {
       data = tempAniDetails[data.aniId]!;
@@ -90,7 +68,9 @@ class _DetailsState extends State<Details> {
 
   splitData(AnimeModel data) {
     episodeData = data.episodes.reversed.toList().cast<EpisodeModel>();
-    if (episodeData.isNotEmpty && data.type.toLowerCase() != "movie") {
+    if (episodeData.isNotEmpty &&
+        data.type.toLowerCase() != "movie" &&
+        episodeData.length > 2) {
       hasNoImage = episodeData[0].image == episodeData[1].image ? true : false;
     }
     showEps =
@@ -101,7 +81,6 @@ class _DetailsState extends State<Details> {
   Widget build(BuildContext context) {
     final widthCount = (MediaQuery.of(context).size.width ~/ 300).toInt();
     const minCount = 4;
-
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         systemNavigationBarColor: Colors.transparent));
@@ -143,7 +122,7 @@ class _DetailsState extends State<Details> {
                           alignment: Alignment.center,
                           child: const Text(
                             'Whoops!',
-                            style: TextStyle(fontSize: 20),
+                            style: TextStyle(fontSize: 20, color: Colors.white),
                           ));
                     },
                   )),
@@ -162,97 +141,138 @@ class _DetailsState extends State<Details> {
                   ),
                   width: screen.width,
                 ),
-                Positioned(
-                    right: 10,
-                    top: 40,
-                    child: isLoaded
-                        ? InkWell(
-                            radius: 0,
-                            onTap: () {
-                              setState(() {
-                                if (saved) {
-                                  removeItem(data.aniId);
-                                  saved = false;
-                                } else {
-                                  saveItem(data);
-                                  saved = true;
-                                }
-                              });
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 5),
+                // Positioned(
+                //     right: 10,
+                //     top: 40,
+                //     child: isLoaded
+                //         ? InkWell(
+                //             radius: 0,
+                //             onTap: () {
+                //               setState(() {
+                //                 if (saved) {
+                //                   removeItem(data.aniId).then((value) {
+                //                     print("removed? $value");
+                //                   });
+                //                   saved = false;
+                //                 } else {
+                //                   saveItem(data).then((value) {
+                //                     print("saved? $value");
+                //                   });
+                //                   saved = true;
+                //                 }
+                //               });
+                //             },
+                //             child: Container(
+                //               padding: const EdgeInsets.symmetric(
+                //                   horizontal: 10, vertical: 5),
+                //               decoration: BoxDecoration(
+                //                   color:
+                //                       const Color.fromARGB(168, 104, 58, 183),
+                //                   borderRadius: BorderRadius.circular(8)),
+                //               child: Text(
+                //                 saved ? "Saved" : "WatchLater",
+                //                 style: TextStyle(color: Colors.white),
+                //               ),
+                //             ))
+                //         : const Center()),
+                screen.width > 600
+                    ? Positioned(
+                        left: 20,
+                        top: 35,
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                          child: Container(
+                              padding: const EdgeInsets.all(6),
                               decoration: BoxDecoration(
                                   color:
                                       const Color.fromARGB(168, 104, 58, 183),
-                                  borderRadius: BorderRadius.circular(8)),
-                              child: Text(saved ? "Saved" : "WatchLater"),
-                            ))
-                        : const Center()),
-                Positioned(
-                    left: 20,
-                    top: 35,
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                              color: const Color.fromARGB(168, 104, 58, 183),
-                              borderRadius: BorderRadius.circular(50)),
-                          child: Icon(Icons.close)),
-                    )),
-                Positioned(
-                    bottom: 0,
-                    left: 20,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.network(data.image, width: 150),
-                    )),
-                Positioned(
-                    bottom: 50,
-                    right: 0,
-                    child: SizedBox(
-                      width: screen.width * 0.5,
-                      child: Text(
-                        data.title,
-                        maxLines: 3,
-                        style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.greenAccent),
-                      ),
-                    )),
-                Positioned(
-                    bottom: 5,
-                    right: 10,
-                    child: SizedBox(
-                      width: 170,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 10, vertical: 5),
-                              decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(5),
-                                  color: Colors.deepPurple),
-                              child: Text(
-                                  "Ep ${data.episodes.length}/${data.totalEpisodes}")),
-                          Text(data.type),
-                          Text(
-                            data.subOrDub.toUpperCase(),
-                          ),
-                        ],
-                      ),
-                    ))
+                                  borderRadius: BorderRadius.circular(50)),
+                              child: const Icon(Icons.close)),
+                        ))
+                    : const Center(),
+                Center(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.network(data.image, width: 150),
+                  ),
+                )
               ],
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.all(8.0),
+            child: Center(
+              child: Text(
+                data.title,
+                maxLines: 3,
+                style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.greenAccent),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
             child: Wrap(
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 20,
+              runSpacing: 10,
+              children: [
+                Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        color: Colors.deepPurple),
+                    child: Text(
+                        "Ep ${data.episodes.length}/${data.totalEpisodes}",
+                        style: TextStyle(color: Colors.white))),
+                Text(
+                  data.type,
+                  style: TextStyle(color: Colors.white),
+                ),
+                Text(
+                  data.subOrDub.toUpperCase(),
+                  style: TextStyle(color: Colors.white),
+                ),
+                isLoaded
+                    ? GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            // if (saved) {
+                            //   laterbox.delete(data.aniId);
+                            //   saved = false;
+                            // } else {
+                            //   laterbox.put(data.aniId, data);
+                            //   saved = true;
+                            // }
+                          });
+                        },
+                        child: Center(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 5),
+                            decoration: BoxDecoration(
+                                color: const Color.fromARGB(168, 104, 58, 183),
+                                borderRadius: BorderRadius.circular(8)),
+                            child: Text(
+                              saved ? "Saved" : "WatchLater",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ))
+                    : const Center(),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Wrap(
+              alignment: WrapAlignment.center,
               spacing: 10,
               runSpacing: 10,
               children: data.geners
@@ -263,7 +283,7 @@ class _DetailsState extends State<Details> {
                             border: Border.all(width: 1, color: Colors.white)),
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 5),
-                        child: Text(e),
+                        child: Text(e, style: TextStyle(color: Colors.white)),
                       ))
                   .cast<Widget>()
                   .toList(),
@@ -275,9 +295,10 @@ class _DetailsState extends State<Details> {
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   child: Row(
                     children: [
-                      const Text("Next Episode at:  "),
+                      const Text("Next Episode in ",
+                          style: TextStyle(color: Colors.white)),
                       Text(
-                        "${DateTime.fromMillisecondsSinceEpoch(data.nextAiringEpisode * 1000).toLocal()}",
+                        "${DateTime.fromMillisecondsSinceEpoch(data.nextAiringEpisode * 1000).difference(DateTime.now()).inDays} Days",
                         style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Colors.blueAccent),
@@ -304,10 +325,11 @@ class _DetailsState extends State<Details> {
                       ),
                       SizedBox(
                         height: showmore || data.desc.length < 30 ? null : 100,
-                        child: Text(
-                          data.desc,
-                          textAlign: TextAlign.justify,
-                        ),
+                        child: Text(data.desc,
+                            textAlign: TextAlign.justify,
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600)),
                       ),
                       !showmore
                           ? TextButton(
@@ -321,29 +343,6 @@ class _DetailsState extends State<Details> {
                   ),
                 )
               : const Center(),
-
-          // search
-          // false
-          // ? Container(
-          //     decoration: BoxDecoration(
-          //         borderRadius: BorderRadius.circular(8),
-          //         color: Colors.blueAccent),
-          //     width: screen.width * 0.9,
-          //     margin: const EdgeInsets.symmetric(
-          //         horizontal: 20, vertical: 10),
-          //     padding:
-          //         const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
-          //     child: TextField(
-          //       onSubmitted: (value) {},
-          //       decoration: const InputDecoration(
-          //           border: InputBorder.none,
-          //           suffixIcon: Icon(Icons.search),
-          //           hintText: "Search"),
-          //       keyboardType: TextInputType.number,
-          //       controller: _textEditingController,
-          //     ),
-          //   )
-          // :
           Row(
             children: [
               Container(
@@ -356,9 +355,12 @@ class _DetailsState extends State<Details> {
                       color: Colors.greenAccent),
                 ),
               ),
-              GestureDetector(
+              InkWell(
+                enableFeedback: true,
+                mouseCursor: SystemMouseCursors.click,
                 onTap: () {
                   Feedback.forTap(context);
+                  Toast.show("Fetching!");
                   isDub = !isDub;
                   print("isdub $isDub");
                   fetchData(isDub);
@@ -373,7 +375,9 @@ class _DetailsState extends State<Details> {
                   child: Text(
                     '${isDub ? "Dub" : "Sub"} - ${data.episodes.length} ',
                     style: GoogleFonts.getFont("Nova Square",
-                        fontSize: 10, fontWeight: FontWeight.bold),
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),
                   ),
                 ),
               ),
@@ -384,7 +388,10 @@ class _DetailsState extends State<Details> {
                   ? const Padding(
                       padding: EdgeInsets.symmetric(vertical: 20),
                       child: Center(
-                        child: Text("No Episodes found"),
+                        child: Text(
+                          "No Episodes found",
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
                     )
                   : const Center(
@@ -394,7 +401,6 @@ class _DetailsState extends State<Details> {
                   padding: const EdgeInsets.only(bottom: 10, top: 10),
                   shrinkWrap: true,
                   physics: const ClampingScrollPhysics(),
-                  // itemCount: episodeData.length,
                   itemCount: showEps.length,
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       mainAxisExtent: hasNoImage ? 100 : 150,
@@ -413,6 +419,8 @@ class _DetailsState extends State<Details> {
                       },
                       child: hasNoImage
                           ? Container(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 20),
                               margin: const EdgeInsets.symmetric(
                                   vertical: 10, horizontal: 20),
                               decoration: BoxDecoration(
@@ -421,9 +429,8 @@ class _DetailsState extends State<Details> {
                                       const Color.fromARGB(144, 123, 128, 164)),
                               child: Center(
                                   child: Text(
-                                showEps[index].title,
-                                style: GoogleFonts.andadaPro(
-                                    fontWeight: FontWeight.bold, fontSize: 16),
+                                "Episode ${index + 1}",
+                                textAlign: TextAlign.center,
                               )),
                             )
                           : Stack(
@@ -481,7 +488,8 @@ class _DetailsState extends State<Details> {
                                               textAlign: TextAlign.center,
                                               style: const TextStyle(
                                                   fontWeight: FontWeight.bold,
-                                                  fontSize: 18),
+                                                  fontSize: 18,
+                                                  color: Colors.white),
                                             ),
                                             const SizedBox(
                                               height: 5,
@@ -491,6 +499,8 @@ class _DetailsState extends State<Details> {
                                               maxLines: 2,
                                               textAlign: TextAlign.center,
                                               overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                  color: Colors.white),
                                             )
                                           ],
                                         ))),

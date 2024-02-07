@@ -1,30 +1,30 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
-import 'package:kenji/Settings.dart';
+// import 'package:isar/isar.dart';
+// import 'package:kenji/model/anime.dart';
 import 'package:media_kit/media_kit.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+// import 'package:path_provider/path_provider.dart';
+import 'package:kenji/services/anilistFetcher.dart';
 
 import 'Pages/wrapper.dart';
-import 'model/anime.dart';
 
 Future<void> main() async {
+  var r = AniList.fetchRecentEps(page: 1);
+  var t = AniList.Trending(page: 1);
   WidgetsFlutterBinding.ensureInitialized();
   MediaKit.ensureInitialized();
-  await Hive.initFlutter(
-    (await Directory(
-                '${(await getApplicationDocumentsDirectory()).path}/.kenji')
-            .create())
-        .path,
-  );
-  Hive.registerAdapter(EpisodeModelAdapter());
-  Hive.registerAdapter(AnimeModelAdapter());
-  await SharedPreferences.getInstance().then((value) => settings.baseURL =
-      value.getString("baseURL") ?? "https://toasty-kun.vercel.app/");
-  print(settings.baseURL);
-  await Hive.openBox('Later');
-  await Hive.openBox<AnimeModel>('WatchedIndexs');
+  // await Hive.initFlutter(
+  //   (await Directory(
+  //               '${(await getApplicationDocumentsDirectory()).path}/.kenji')
+  //           .create())
+  //       .path,
+  // );
+
+  // final dir = await getApplicationDocumentsDirectory();
+  // final isar = await Isar.open(
+  //   [EpisodeModel, AnimeModel],
+  //   directory: dir.path,
+  // );
+
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
     title: "Kenji",
@@ -33,6 +33,6 @@ Future<void> main() async {
       colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       useMaterial3: true,
     ),
-    home: const Wrapper(),
+    home: Wrapper(r: r, t: t),
   ));
 }

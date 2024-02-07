@@ -1,19 +1,20 @@
-import 'package:hive/hive.dart';
-part 'anime.g.dart';
+import 'package:isar/isar.dart';
+// part 'anime.g.dart';
 
-@HiveType(typeId: 2)
-class EpisodeModel extends HiveObject {
-  @HiveField(0)
+@collection
+class EpisodeModel {
+  Id ID = Isar.autoIncrement;
+
   final String id;
-  @HiveField(1)
+
   final String title;
-  @HiveField(2)
+
   final String description;
-  @HiveField(3)
-  final int number;
-  @HiveField(4)
+
+  final String number;
+
   final String image;
-  @HiveField(5)
+
   final String airDate;
 
   EpisodeModel(this.id, this.title, this.description, this.number, this.image,
@@ -24,55 +25,57 @@ class EpisodeModel extends HiveObject {
         json["id"],
         json["title"] ?? json["id"].replaceAll("-", " "),
         json["description"] ?? "",
-        json["number"],
+        json["number"].toString(),
         json["image"],
         json["airDate"] ?? "2023-03-29T11:00:00.000Z");
   }
 }
 
-@HiveType(typeId: 1)
-class AnimeModel extends HiveObject {
-  @HiveField(0)
+@collection
+class AnimeModel {
+  Id id = Isar.autoIncrement;
   final String aniId;
-  @HiveField(1)
+
   final int malId;
-  @HiveField(2)
+
   final String title;
-  @HiveField(3)
+
   final String image;
-  @HiveField(4)
+
   final String desc;
-  @HiveField(5)
+
   final String status;
-  @HiveField(6)
+
   final String cover;
-  @HiveField(7)
+
   final String releaseDate;
-  @HiveField(8)
+
   final String? color;
-  @HiveField(9)
+
   final String geners;
-  @HiveField(10)
+
   final String totalEpisodes;
-  @HiveField(11)
+
   final String type;
-  @HiveField(12)
+
   final bool is_hentai;
-  @HiveField(13)
+
+  // IsarLinks<EpisodeModel> episodes = IsarLinks<EpisodeModel>();
+  @ignore
   final List<EpisodeModel> episodes;
-  @HiveField(14)
+
   final String episodeTitle;
-  @HiveField(15)
+
   final String titles;
-  @HiveField(16)
+
   final String slug;
-  @HiveField(17)
+
   final bool is_censored;
-  @HiveField(18)
+
   final String episodeNumber;
-  @HiveField(19)
+
   final int nextAiringEpisode;
-  @HiveField(20)
+
   final String subOrDub;
 
   AnimeModel(

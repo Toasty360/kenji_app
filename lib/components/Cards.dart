@@ -11,7 +11,7 @@ class Cards extends StatefulWidget {
   final String subtext;
   FocusNode? focus;
 
-  Cards(this.data, this.subtext);
+  Cards(this.data, this.subtext, {super.key});
 
   @override
   State<Cards> createState() => _CardsState();
