@@ -55,7 +55,13 @@ class AniList {
   }
 
   static Future<List<RecentEps>> fetchRecentEps({page = 1}) async {
-    final v = await Dio().get("$base_url/anime/gogoanime/recent-episodes");
+    final v = await Dio()
+        .get("$base_url/anime/gogoanime/recent-episodes",
+            options: Options(headers: {'Access-Control-Allow-Origin': "*"}))
+        .onError((error, stackTrace) {
+      print(error.toString());
+      return Future.delayed(Duration.zero);
+    });
 
     return v.data["results"]
         .map((e) => RecentEps.fromJson(e))
@@ -65,7 +71,15 @@ class AniList {
 
   static Future<List<AnimeModel>> Trending({page = 1}) async {
     print(base_url);
-    final response = await Dio().get("$base_url/meta/anilist/trending");
+    final response = await Dio()
+        .get("$base_url/meta/anilist/trending",
+            options: Options(
+                headers: {'Access-Control-Allow-Origin': "*"},
+                responseType: ResponseType.json))
+        .onError((error, stackTrace) {
+      print(error.toString());
+      return Future.delayed(Duration.zero);
+    });
     List<AnimeModel> data = [];
     for (Map e in response.data["results"]) {
       data.add(AnimeModel.toTopAir(e));

@@ -10,7 +10,6 @@ import 'package:kenji/services/anilistFetcher.dart';
 import 'package:toast/toast.dart';
 
 import '../components/MediaPlayer.dart';
-import '../components/SaveIt.dart';
 
 class Details extends StatefulWidget {
   final AnimeModel item;
